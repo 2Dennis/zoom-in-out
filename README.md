@@ -2,7 +2,7 @@
 
 macOS-style **text zoom** for [Omarchy](https://omarchy.org/) (Hyprland): Super together with `+` zooms the focused app in, Super together with `-` zooms it out. Browsers get page zoom; terminals get font-size zoom. This is **not** the accessibility screen magnifier (`SUPER + CTRL + Z` on stock Omarchy).
 
-Plugin id: `2Dennis.zoom-in-out`  
+Plugin id: `io.github.2dennis.zoom-in-out`  
 Kind: `service` (headless; no bar widget)
 
 ## Install
@@ -12,7 +12,7 @@ Omarchy clones the git repo, validates `manifest.json`, and never runs install h
 Update an existing install:
 
 ```sh
-omarchy plugin update 2Dennis.zoom-in-out
+omarchy plugin update io.github.2dennis.zoom-in-out
 omarchy-shell shell rescanPlugins
 ```
 
@@ -26,24 +26,29 @@ Until the repo is public, copy it by hand:
 
 ```sh
 git clone https://github.com/2Dennis/zoom-in-out.git \
-  ~/.config/omarchy/plugins/2Dennis.zoom-in-out
+  ~/.config/omarchy/plugins/io.github.2dennis.zoom-in-out
 omarchy-shell shell rescanPlugins
-omarchy plugin enable 2Dennis.zoom-in-out
+omarchy plugin enable io.github.2dennis.zoom-in-out
 ```
 
 Confirm:
 
 ```sh
-omarchy plugin list --json | jq '.[] | select(.id == "2Dennis.zoom-in-out")'
+omarchy plugin list --json | jq '.[] | select(.id == "io.github.2dennis.zoom-in-out")'
 ```
 
 ## Remove
 
 ```sh
-omarchy plugin remove 2Dennis.zoom-in-out
+omarchy plugin remove io.github.2dennis.zoom-in-out
 ```
 
-Disabling or unloading the service unbinds Super++ / Super+- and restores Omarchy’s default window-resize binds on minus/equal.
+If an older install used id `2Dennis.zoom-in-out`, remove that first (marketplace ids must be lowercase):
+
+```sh
+omarchy plugin remove 2Dennis.zoom-in-out
+omarchy plugin add https://github.com/2Dennis/zoom-in-out.git --enable
+```
 
 ## Keybindings
 
@@ -62,9 +67,9 @@ Binds use the same evdev keycodes Omarchy uses (`code:20` minus, `code:21` equal
 CLI / IPC (after enable):
 
 ```sh
-~/.config/omarchy/plugins/2Dennis.zoom-in-out/bin/omarchy-zoom in
-~/.config/omarchy/plugins/2Dennis.zoom-in-out/bin/omarchy-zoom out
-~/.config/omarchy/plugins/2Dennis.zoom-in-out/bin/omarchy-zoom reset
+~/.config/omarchy/plugins/io.github.2dennis.zoom-in-out/bin/omarchy-zoom in
+~/.config/omarchy/plugins/io.github.2dennis.zoom-in-out/bin/omarchy-zoom out
+~/.config/omarchy/plugins/io.github.2dennis.zoom-in-out/bin/omarchy-zoom reset
 
 omarchy-shell zoom-in-out zoomIn
 omarchy-shell zoom-in-out zoomOut
@@ -122,4 +127,4 @@ This tree is the plugin. It is **not listed** on the marketplace until you:
 
 Reviewers: see **[MAINTAINERS.md](MAINTAINERS.md)** (install, test keys, remove, pass/fail).
 
-`omarchy.*` ids are reserved; this plugin uses `2Dennis.zoom-in-out`.
+`omarchy.*` ids are reserved. Marketplace listings require a **lowercase** id; this plugin uses `io.github.2dennis.zoom-in-out`. Author and GitHub account remain **2Dennis**.

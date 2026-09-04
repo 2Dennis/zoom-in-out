@@ -1,6 +1,6 @@
 # Maintainer review
 
-Plugin id: `2Dennis.zoom-in-out`  
+Plugin id: `io.github.2dennis.zoom-in-out`  
 Repo: https://github.com/2Dennis/zoom-in-out  
 Kind: headless `service` (no bar widget). MIT.
 
@@ -10,14 +10,14 @@ This is **text zoom** in the focused app (terminal font / browser page), like ma
 
 ```sh
 omarchy plugin add https://github.com/2Dennis/zoom-in-out.git --enable
-omarchy plugin validate ~/.config/omarchy/plugins/2Dennis.zoom-in-out
+omarchy plugin validate ~/.config/omarchy/plugins/io.github.2dennis.zoom-in-out
 ```
 
 On enable, the service:
 
 1. Unbinds stock **window resize** on Super+minus / Super+equal
 2. Binds those keys to zoom
-3. Appends one `dofile(...)` line marked `2Dennis.zoom-in-out` to `~/.config/hypr/bindings.lua`
+3. Appends one `dofile(...)` line marked `io.github.2dennis.zoom-in-out` to `~/.config/hypr/bindings.lua`
 
 ## What to try
 
@@ -35,7 +35,7 @@ Keyboard window resize should still work with **Super+Alt** or **Super+Ctrl** pl
 ## Remove
 
 ```sh
-omarchy plugin remove 2Dennis.zoom-in-out
+omarchy plugin remove io.github.2dennis.zoom-in-out
 ```
 
 After remove: Super+minus / Super+equal should **resize the window** again, and the `dofile` line should be gone from `~/.config/hypr/bindings.lua`.

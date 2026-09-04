@@ -1,8 +1,8 @@
--- 2Dennis.zoom-in-out — Super++ / Super+- text zoom (not window resize).
+-- io.github.2dennis.zoom-in-out — Super++ / Super+- text zoom (not window resize).
 -- Loaded from ~/.config/hypr/bindings.lua and applied immediately via hyprctl eval.
 -- Do not use o.bind: that wraps uwsm/omarchy-launch and is for apps, not this script.
 
-local zoom = os.getenv("HOME") .. "/.config/omarchy/plugins/2Dennis.zoom-in-out/bin/omarchy-zoom"
+local zoom = os.getenv("HOME") .. "/.config/omarchy/plugins/io.github.2dennis.zoom-in-out/bin/omarchy-zoom"
 
 hl.unbind("SUPER + code:20")
 hl.unbind("SUPER + code:21")

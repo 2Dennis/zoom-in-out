@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "2Dennis.zoom-in-out",
+  "id": "io.github.2dennis.zoom-in-out",
   "name": "Zoom In/Out",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "author": "2Dennis",
   "license": "MIT",
   "description": "macOS-style Super++ / Super+- text zoom for the focused app (browser page zoom, terminal font size). Not a screen magnifier.",

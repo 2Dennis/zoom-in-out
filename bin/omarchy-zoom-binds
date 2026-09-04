@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# Install or remove Hyprland binds for 2Dennis.zoom-in-out.
+# Install or remove Hyprland binds for io.github.2dennis.zoom-in-out.
 set -euo pipefail
 
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ZOOM="${PLUGIN_DIR}/bin/omarchy-zoom"
 LUA_BINDS="${PLUGIN_DIR}/hypr/bindings.lua"
 USER_LUA="${HOME}/.config/hypr/bindings.lua"
-MARKER="2Dennis.zoom-in-out"
+MARKER="io.github.2dennis.zoom-in-out"
 
 mode="${1:-install}"
 
