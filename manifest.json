@@ -1,0 +1,14 @@
+{
+  "schemaVersion": 1,
+  "id": "dennislexis.zoom-in-out",
+  "name": "Zoom In/Out",
+  "version": "1.0.0",
+  "author": "Dennis Lexis",
+  "license": "MIT",
+  "description": "macOS-style Super++ / Super+- text zoom for the focused app (browser page zoom, terminal font size). Not a screen magnifier.",
+  "kinds": ["service"],
+  "keepLoaded": true,
+  "entryPoints": {
+    "service": "Service.qml"
+  }
+}
