@@ -120,4 +120,6 @@ This tree is the plugin. It is **not listed** on the marketplace until you:
 2. Run `omarchy plugin validate .` on an Omarchy machine.
 3. Submit via [Publish a plugin](https://plugins.omarchy.org/publish.html) (GitHub issue form). Automated checks run on the current commit; a maintainer approves the listing.
 
+Reviewers: see **[MAINTAINERS.md](MAINTAINERS.md)** (install, test keys, remove, pass/fail).
+
 `omarchy.*` ids are reserved; this plugin uses `2Dennis.zoom-in-out`.
