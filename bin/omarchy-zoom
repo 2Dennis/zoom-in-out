@@ -1,13 +1,10 @@
 #!/usr/bin/env bash
-# Zoom the focused window's text (browser page zoom / terminal font), not a
-# screen magnifier. Intended for Omarchy (Arch + Hyprland).
+# Zoom the focused window's text (browser page zoom / terminal font).
 set -euo pipefail
 
 usage() {
   cat <<'EOF'
 Usage: omarchy-zoom <in|out|reset>
-
-Sends the focused app's native zoom shortcut via Hyprland sendshortcut.
 EOF
 }
 
@@ -29,17 +26,38 @@ if ! command -v hyprctl >/dev/null 2>&1; then
   exit 1
 fi
 
-class="$(hyprctl activewindow 2>/dev/null | awk -F': ' '/^[[:space:]]*class:/{print tolower($2); exit}')"
+class="$(
+  hyprctl activewindow -j 2>/dev/null | python3 -c 'import json,sys
+try:
+    d=json.load(sys.stdin)
+    print((d.get("class") or d.get("initialClass") or "").lower())
+except Exception:
+    pass' 2>/dev/null || true
+)"
+if [[ -z "$class" ]]; then
+  class="$(hyprctl activewindow 2>/dev/null | awk -F': ' '/^[[:space:]]*class:/{print tolower($2); exit}')"
+fi
 
-# Hyprland sendshortcut: MODS, KEY [, window]
-# Empty window selector targets the focused client.
 send() {
   local mods="$1"
   local key="$2"
-  hyprctl -q dispatch sendshortcut "${mods}, ${key},"
+  local out
+
+  out="$(hyprctl dispatch "hl.dsp.send_shortcut({ mods = \"${mods}\", key = \"${key}\" })" 2>&1)" || true
+  if [[ "$out" == "ok" ]] || [[ "$out" == *"ok"* && "$out" != *"error"* && "$out" != *"not found"* ]]; then
+    return 0
+  fi
+
+  # Hyprland 0.54 / hyprlang: trailing window selector is required.
+  out="$(hyprctl dispatch sendshortcut "${mods}, ${key}, activewindow" 2>&1)" || true
+  if [[ "$out" == "ok" ]] || [[ "$out" == *"ok"* ]]; then
+    return 0
+  fi
+
+  echo "omarchy-zoom: sendshortcut failed (${mods} ${key}): ${out}" >&2
+  return 1
 }
 
-# Kitty / WezTerm default to Ctrl+Shift for font size so Ctrl+C/V stay intact.
 is_ctrl_shift_terminal() {
   case "$class" in
     kitty | kitty-dropterm | org.wezfurlong.wezterm | wezterm | wezterm-gui)
@@ -49,37 +67,53 @@ is_ctrl_shift_terminal() {
   return 1
 }
 
+is_browser() {
+  case "$class" in
+    firefox* | zen | zen-browser | librewolf | floorp | \
+    google-chrome* | chromium* | brave-browser | brave | vivaldi* | \
+    opera | microsoft-edge* | thorium-browser | \
+    org.mozilla.firefox | org.chromium.*)
+      return 0
+      ;;
+  esac
+  return 1
+}
+
 zoom_in() {
   if is_ctrl_shift_terminal; then
-    send "CTRL SHIFT" "equal"
+    send "CTRL SHIFT" "equal" || send "CONTROL SHIFT" "equal"
     return
   fi
-  # Browsers, Ghostty, Alacritty, foot, gnome-terminal, VS Code, and many
-  # GTK/Qt apps: Ctrl+= (same physical key as Ctrl++ on US layouts).
-  send "CTRL" "equal"
+  # Omarchy's default terminal (foot) only increases font on Ctrl+plus.
+  # Browsers zoom on Ctrl+= / Ctrl++.
+  if is_browser; then
+    send "CTRL" "equal" || send "CONTROL" "equal"
+    return
+  fi
+  send "CTRL" "plus" || send "CONTROL" "plus" || send "CTRL" "equal" || send "CONTROL" "equal"
 }
 
 zoom_out() {
   if is_ctrl_shift_terminal; then
-    send "CTRL SHIFT" "minus"
+    send "CTRL SHIFT" "minus" || send "CONTROL SHIFT" "minus"
     return
   fi
-  send "CTRL" "minus"
+  send "CTRL" "minus" || send "CONTROL" "minus"
 }
 
 zoom_reset() {
   if is_ctrl_shift_terminal; then
     case "$class" in
       kitty | kitty-dropterm)
-        send "CTRL SHIFT" "BackSpace"
+        send "CTRL SHIFT" "BackSpace" || send "CTRL SHIFT" "backspace"
         ;;
       *)
-        send "CTRL SHIFT" "0"
+        send "CTRL SHIFT" "0" || send "CONTROL SHIFT" "0"
         ;;
     esac
     return
   fi
-  send "CTRL" "0"
+  send "CTRL" "0" || send "CONTROL" "0"
 }
 
 case "$action" in

@@ -14,24 +14,38 @@ Item {
     var path = url.toString()
     if (path.indexOf("file://") === 0)
       path = path.substring(7)
+    if (path.indexOf("localhost/") === 0)
+      path = path.substring(9)
     if (path.length > 1 && path.charAt(path.length - 1) === "/")
       path = path.substring(0, path.length - 1)
+    if (path.charAt(0) !== "/")
+      path = ""
     return path
   }
 
-  readonly property string bindHelper: pluginDir + "/bin/omarchy-zoom-binds"
-  readonly property string zoomHelper: pluginDir + "/bin/omarchy-zoom"
+  readonly property string bindHelper: {
+    if (pluginDir.length)
+      return pluginDir + "/bin/omarchy-zoom-binds"
+    return ""
+  }
+  readonly property string zoomHelper: {
+    if (pluginDir.length)
+      return pluginDir + "/bin/omarchy-zoom"
+    return ""
+  }
 
   property string pendingAction: ""
 
   function runBinds(mode) {
-    bindsProcess.command = ["bash", bindHelper, mode]
+    var helper = bindHelper.length ? bindHelper : "omarchy-zoom-binds"
+    bindsProcess.command = ["bash", helper, mode]
     bindsProcess.running = true
   }
 
   function zoom(action) {
     pendingAction = action
-    zoomProcess.command = ["bash", zoomHelper, action]
+    var helper = zoomHelper.length ? zoomHelper : "omarchy-zoom"
+    zoomProcess.command = ["bash", helper, action]
     zoomProcess.running = true
   }
 

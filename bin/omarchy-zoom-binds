@@ -1,10 +1,12 @@
 #!/usr/bin/env bash
 # Install or remove Hyprland binds for 2Dennis.zoom-in-out.
-# Omarchy plugins cannot run installer hooks; the service calls this on load.
 set -euo pipefail
 
 PLUGIN_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 ZOOM="${PLUGIN_DIR}/bin/omarchy-zoom"
+LUA_BINDS="${PLUGIN_DIR}/hypr/bindings.lua"
+USER_LUA="${HOME}/.config/hypr/bindings.lua"
+MARKER="2Dennis.zoom-in-out"
 
 mode="${1:-install}"
 
@@ -13,9 +15,54 @@ if ! command -v hyprctl >/dev/null 2>&1; then
   exit 1
 fi
 
-# XKB keycodes (evdev): 20 = minus, 21 = equal, 19 = 0. Same mapping Omarchy
-# uses for window resize, so these work on non-US layouts the same way.
-unbind_zoom_keys() {
+lua_eval() {
+  hyprctl eval "$1" >/dev/null 2>&1
+}
+
+has_lua_config() {
+  hyprctl eval 'return 1' >/dev/null 2>&1
+}
+
+ensure_user_lua_hook() {
+  mkdir -p "$(dirname "$USER_LUA")"
+  local line="dofile(\"${LUA_BINDS}\") -- ${MARKER}"
+  if [[ -f "$USER_LUA" ]] && grep -Fq "$MARKER" "$USER_LUA"; then
+    return 0
+  fi
+  printf '\n%s\n' "$line" >>"$USER_LUA"
+}
+
+remove_user_lua_hook() {
+  [[ -f "$USER_LUA" ]] || return 0
+  local tmp
+  tmp="$(mktemp)"
+  grep -Fv "$MARKER" "$USER_LUA" >"$tmp" || true
+  mv "$tmp" "$USER_LUA"
+}
+
+restore_omarchy_resize_lua() {
+  hyprctl eval "$(
+    cat <<'LUA'
+hl.unbind("SUPER + code:20")
+hl.unbind("SUPER + code:21")
+hl.unbind("SUPER + SHIFT + code:20")
+hl.unbind("SUPER + SHIFT + code:21")
+hl.unbind("SUPER + plus")
+hl.unbind("SUPER + SHIFT + plus")
+hl.unbind("SUPER + equal")
+hl.unbind("SUPER + SHIFT + equal")
+hl.unbind("SUPER + minus")
+hl.unbind("SUPER + SHIFT + minus")
+hl.unbind("SUPER + CTRL + code:19")
+hl.bind("SUPER + code:20", hl.dsp.window.resize({ x = -100, y = 0, relative = true }), { description = "Expand window left" })
+hl.bind("SUPER + code:21", hl.dsp.window.resize({ x = 100, y = 0, relative = true }), { description = "Shrink window left" })
+hl.bind("SUPER + SHIFT + code:20", hl.dsp.window.resize({ x = 0, y = -100, relative = true }), { description = "Shrink window up" })
+hl.bind("SUPER + SHIFT + code:21", hl.dsp.window.resize({ x = 0, y = 100, relative = true }), { description = "Expand window down" })
+LUA
+  )" >/dev/null 2>&1 || true
+}
+
+install_hyprlang_binds() {
   hyprctl -q --batch "\
 keyword unbind SUPER, code:20 ; \
 keyword unbind SUPER, code:21 ; \
@@ -27,23 +74,6 @@ keyword unbind SUPER SHIFT, equal ; \
 keyword unbind SUPER SHIFT, plus ; \
 keyword unbind SUPER, plus ; \
 keyword unbind SUPER CTRL, code:19"
-}
-
-restore_omarchy_resize() {
-  # Stock Omarchy quattro tiling.lua window-resize binds.
-  hyprctl -q --batch "\
-keyword unbind SUPER, code:20 ; \
-keyword unbind SUPER, code:21 ; \
-keyword unbind SUPER SHIFT, code:20 ; \
-keyword unbind SUPER SHIFT, code:21 ; \
-keyword bindd SUPER, code:20, Expand window left, resizeactive, -100 0 ; \
-keyword bindd SUPER, code:21, Shrink window left, resizeactive, 100 0 ; \
-keyword bindd SUPER SHIFT, code:20, Shrink window up, resizeactive, 0 -100 ; \
-keyword bindd SUPER SHIFT, code:21, Expand window down, resizeactive, 0 100"
-}
-
-install_zoom_binds() {
-  unbind_zoom_keys
   hyprctl -q --batch "\
 keyword bindd SUPER, code:21, Zoom in, exec, ${ZOOM} in ; \
 keyword bindd SUPER SHIFT, code:21, Zoom in, exec, ${ZOOM} in ; \
@@ -58,13 +88,34 @@ keyword bindd SUPER SHIFT, minus, Zoom out, exec, ${ZOOM} out ; \
 keyword bindd SUPER CTRL, code:19, Reset zoom, exec, ${ZOOM} reset"
 }
 
+restore_omarchy_resize_hyprlang() {
+  hyprctl -q --batch "\
+keyword unbind SUPER, code:20 ; \
+keyword unbind SUPER, code:21 ; \
+keyword unbind SUPER SHIFT, code:20 ; \
+keyword unbind SUPER SHIFT, code:21 ; \
+keyword bindd SUPER, code:20, Expand window left, resizeactive, -100 0 ; \
+keyword bindd SUPER, code:21, Shrink window left, resizeactive, 100 0 ; \
+keyword bindd SUPER SHIFT, code:20, Shrink window up, resizeactive, 0 -100 ; \
+keyword bindd SUPER SHIFT, code:21, Expand window down, resizeactive, 0 100"
+}
+
 case "$mode" in
   install)
-    install_zoom_binds
+    if has_lua_config; then
+      ensure_user_lua_hook
+      lua_eval "dofile([[${LUA_BINDS}]])"
+    else
+      install_hyprlang_binds
+    fi
     ;;
   remove)
-    unbind_zoom_keys
-    restore_omarchy_resize
+    if has_lua_config; then
+      remove_user_lua_hook
+      restore_omarchy_resize_lua
+    else
+      restore_omarchy_resize_hyprlang
+    fi
     ;;
   *)
     echo "Usage: omarchy-zoom-binds <install|remove>" >&2

@@ -7,7 +7,16 @@ Kind: `service` (headless; no bar widget)
 
 ## Install
 
-Omarchy clones the git repo, validates `manifest.json`, and never runs install hooks. Enabling the plugin loads `Service.qml`, which registers the Hyprland keybinds.
+Omarchy clones the git repo, validates `manifest.json`, and never runs install hooks. Enabling the plugin loads `Service.qml`, which registers Lua Hyprland binds (`hyprctl eval` + a `dofile` line in `~/.config/hypr/bindings.lua`). Old `bindd` keywords do nothing on Omarchy Quattro / Hyprland 0.55.
+
+Update an existing install:
+
+```sh
+omarchy plugin update 2Dennis.zoom-in-out
+omarchy-shell shell rescanPlugins
+```
+
+Then disable and enable the plugin (or restart the shell) so binds reinstall.
 
 ```sh
 omarchy plugin add https://github.com/2Dennis/zoom-in-out.git --enable
@@ -69,7 +78,8 @@ The script reads `hyprctl activewindow` and sends a shortcut to the focused clie
 | Focused `class` (lowercase) | In | Out | Reset |
 | --- | --- | --- | --- |
 | Browsers: Firefox, LibreWolf, Floorp, Zen, Chrome, Chromium, Brave, Vivaldi, Opera, Edge, Thorium, … | Ctrl+= | Ctrl+- | Ctrl+0 |
-| Ghostty, Alacritty, foot, GNOME Terminal, Ptyxis, Tilix, Konsole, xfce4-terminal, Terminator, Console | Ctrl+= | Ctrl+- | Ctrl+0 |
+| Ghostty, Alacritty, GNOME Terminal, Ptyxis, Tilix, Konsole, xfce4-terminal, Terminator, Console | Ctrl++ / Ctrl+= | Ctrl+- | Ctrl+0 |
+| foot (Omarchy default) | Ctrl++ | Ctrl+- | Ctrl+0 |
 | Kitty | Ctrl+Shift+= | Ctrl+Shift+- | Ctrl+Shift+Backspace |
 | WezTerm | Ctrl+Shift+= | Ctrl+Shift+- | Ctrl+Shift+0 |
 | Everything else (VS Code, editors, …) | Ctrl+= | Ctrl+- | Ctrl+0 |
