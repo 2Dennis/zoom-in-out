@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Install or remove Hyprland binds for dennislexis.zoom-in-out.
+# Install or remove Hyprland binds for 2Dennis.zoom-in-out.
 # Omarchy plugins cannot run installer hooks; the service calls this on load.
 set -euo pipefail
 
