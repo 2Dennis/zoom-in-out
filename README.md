@@ -107,24 +107,3 @@ If you still want Super++ for window resize, do not enable this plugin.
 ## Optional Hyprland snippet
 
 If you are not on Omarchy Quattro’s shell plugins, you can source `hypr/zoom-in-out.conf` after unbinding the resize keys. The service path above is the supported install.
-
-## Limitations
-
-- **Wayland key injection:** `sendshortcut` is compositor-side and is the reliable path on Hyprland. Apps that ignore Ctrl++ (custom keymaps, some Electron builds, remote desktops, nested VMs) will not zoom.
-- **No focused window:** nothing happens.
-- **Kitty / WezTerm:** font size uses Ctrl+Shift, not Ctrl. If you remapped those terminals, this plugin will not know.
-- **Apps without text zoom:** the fallback still sends Ctrl+= / Ctrl+-; that may do nothing or trigger an unrelated command.
-- **Not a screen magnifier:** whole-desktop zoom remains `SUPER + CTRL + Z` / `SUPER + CTRL + ALT + Z`.
-- **`SUPER` + `0`:** not bound; that is workspace 10 on Omarchy.
-
-## Publish to plugins.omarchy.org
-
-This tree is the plugin. It is **not listed** on the marketplace until you:
-
-1. Push a **public GitHub repository** with `manifest.json` at the root.
-2. Run `omarchy plugin validate .` on an Omarchy machine.
-3. Submit via [Publish a plugin](https://plugins.omarchy.org/publish.html) (GitHub issue form). Automated checks run on the current commit; a maintainer approves the listing.
-
-Reviewers: see **[MAINTAINERS.md](MAINTAINERS.md)** (install, test keys, remove, pass/fail).
-
-`omarchy.*` ids are reserved. Marketplace listings require a **lowercase** id; this plugin uses `io.github.2dennis.zoom-in-out`. Author and GitHub account remain **2Dennis**.
